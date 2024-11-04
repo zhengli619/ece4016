@@ -7,10 +7,48 @@ import time
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s.connect(('localhost', 6000))
+#connect() 的作用
+# connect() 用于建立一个面向连接的 TCP 会话。通过调用 connect()，客户端和服务器之间会建立一个可靠的连接通道。
+# 一旦连接建立，客户端就不需要在每次发送数据时都指定服务器的 IP 和端口（例如 sendto(data, (ip, port)) 里必须指定 IP 和端口），
+# 因为 connect() 已经明确指定了通信的目标。
+# 通过 connect()，可以使用 send() 和 recv() 进行数据传输，这些方法提供了流式、面向连接的通信方式，确保了数据的顺序和可靠性。
+# 2. 与sendto() 和 recvfrom() 的区别
+# sendto() 和 recvfrom() 常用于无连接的 UDP 协议，允许每次发送时都指定目标 IP 和端口，因此更灵活。
+# 由于没有建立连接，sendto() 和 recvfrom() 没有建立可靠的通道，因此无法保证数据包的顺序或送达。如果需要可靠传输，通常需要额外的逻辑处理。
+# 在 TCP 使用场景中，虽然 sendto() 和 recvfrom() 也可以在连接后使用，但不常见，且使用时不会带来流式通信的优势。
+
 
 def send_req_json(m_band, prev_throughput, buf_occ, av_bitrates, current_time, chunk_arg, rebuff_time, pref_bitrate ):
 
-    #pack message
+#pack message
+#JSON（JavaScript Object Notation）是一种轻量级的数据交换格式，常用于在网络上进行数据传输。JSON 格式具有可读性好、兼容性强等优点，因此广泛用于服务器和客户端之间的数据传递。
+
+    
+# json.dumps() 是将 Python 数据结构（如字典、列表等）转换为 JSON 格式字符串的函数。在代码中：
+#将包含多个键值对的 Python 字典转换成 JSON 格式字符串，并将其存储在 req 变量中。例如，假设传入的值如下：
+
+# m_band = 5000
+# prev_throughput = 4500
+# buf_occ = 2000
+# av_bitrates = [1000, 2000, 3000]
+# current_time = 120
+# chunk_arg = 5
+# rebuff_time = 0
+# pref_bitrate = 2000
+# 调用 json.dumps 后，req 的内容将是这样的 JSON 字符串：
+
+
+# {
+#   "Measured Bandwidth": 5000,
+#   "Previous Throughput": 4500,
+#   "Buffer Occupancy": 2000,
+#   "Available Bitrates": [1000, 2000, 3000],
+#   "Video Time": 120,
+#   "Chunk": 5,
+#   "Rebuffering Time": 0,
+#   "Preferred Bitrate": 2000,
+#   "exit": 0
+# }
     req = json.dumps({"Measured Bandwidth" : m_band,
                      "Previous Throughput" : prev_throughput,
                      "Buffer Occupancy" : buf_occ,
@@ -20,6 +58,8 @@ def send_req_json(m_band, prev_throughput, buf_occ, av_bitrates, current_time, c
                      "Rebuffering Time" : rebuff_time,
                      "Preferred Bitrate" : pref_bitrate,
                      "exit" : 0})
+    # 此 req 请求是通过流式传输（如 TCP 套接字）发送的，接收方可能需要用换行符来区分每一条完整的消息。
+    # 换行符作为消息的结束标志，帮助接收方准确识别每一条独立的 JSON 消息。
     req += '\n'
 
     s.sendall(req.encode())
