@@ -76,8 +76,9 @@ def send_req_json(m_band, prev_throughput, buf_occ, av_bitrates, current_time, c
             response = json.loads(message)
 
             return response["bitrate"]
-
-
+            # 返回由学生实现的算法文件（如 studentcodeExample.py）决定的比特率
+            # simulator.py 接收到 studentComm.py 返回的 bitrate 后，
+            # 会在模拟器中应用这个比特率，继续模拟视频播放过程。
 def send_exit():
     req = json.dumps({"exit" : 1})
 

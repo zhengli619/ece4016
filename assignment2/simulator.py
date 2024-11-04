@@ -12,7 +12,8 @@ from Classes import SimBuffer, NetworkTrace, Scorecard, simulator_comm
 verbose = False
 
 
-def loadtrace(tracefile):
+def loadtrace(tracefile):#从 tracefile 中读取网络带宽变化，并将其存储在 tracelog 列表中，随后实例化 NetworkTrace 类，用于管理追踪数据。
+#返回值：NetworkTrace 对象，包含带宽追踪数据。
 
     with open(tracefile, 'r',encoding='utf-8') as infile:
         lines = infile.readlines()
@@ -28,14 +29,94 @@ def loadtrace(tracefile):
             except ValueError as e:
                 print("Your trace file is poorly formed!")
 
+    trace = NetworkTrace.NetworkTrace(tracelog)#创建一个NetworkTrace类的对象trace，并且用tracelog初始化
+    
+# 假设 lines 内容为：
+#      lines = [
+#     "0 5000000\n",
+#     "15 1000000\n",
+#     "30 100000\n",
+#     "40 1000000\n",
+#     "60 5000000\n"
+#     ]
+# 执行后的 tracelog 列表将是：
 
-
-    trace = NetworkTrace.NetworkTrace(tracelog)
+# [
+#     (0.0, 5000000.0),
+#     (15.0, 1000000.0),
+#     (30.0, 100000.0),
+#     (40.0, 1000000.0),
+#     (60.0, 5000000.0)
+# ]
 
     return trace
 
 
+
+
+
 def loadmanifest(manifestfile):
+
+# 假设 manifestfile 的内容如下：
+
+# json
+
+# {
+#     "Video_Time": 60,
+#     "Chunk_Count": 30,
+#     "Chunk_Time": 2,
+#     "Buffer_Size": 40000000,
+#     "Available_Bitrates": [
+#         500000,
+#         1000000,
+#         5000000
+#     ],
+#     "Preferred_Bitrate": "5000000",
+#     "Chunks": {
+#         "0": [126029, 244250, 1259637],
+#         "1": [125208, 247724, 1239555],
+#         "2": [125784, 252524, 1247158]
+#     }
+# }
+# 在这种情况下，lines 的内容将是一个字符串，类似于：
+
+
+# lines = '''{
+#     "Video_Time": 60,
+#     "Chunk_Count": 30,
+#     "Chunk_Time": 2,
+#     "Buffer_Size": 40000000,
+#     "Available_Bitrates": [
+#         500000,
+#         1000000,
+#         5000000
+#     ],
+#     "Preferred_Bitrate": "5000000",
+#     "Chunks": {
+#         "0": [126029, 244250, 1259637],
+#         "1": [125208, 247724, 1239555],
+#         "2": [125784, 252524, 1247158]
+#     }
+# }'''
+
+# 2. manifest 的内容
+# json.loads(lines) 会将 lines 中的 JSON 字符串解析为一个 Python 字典（dict），并将该字典赋值给 manifest。
+# 所以，manifest 的内容将是一个字典，类似于：
+
+# python
+# manifest = {
+#     "Video_Time": 60,
+#     "Chunk_Count": 30,
+#     "Chunk_Time": 2,
+#     "Buffer_Size": 40000000,
+#     "Available_Bitrates": [500000, 1000000, 5000000],
+#     "Preferred_Bitrate": "5000000",
+#     "Chunks": {
+#         "0": [126029, 244250, 1259637],
+#         "1": [125208, 247724, 1239555],
+#         "2": [125784, 252524, 1247158]
+#     }
+# }
 
     with open(manifestfile, 'r', encoding='utf-8') as infile:
         lines = infile.read()
@@ -43,9 +124,25 @@ def loadmanifest(manifestfile):
     manifest = json.loads(lines)
     return manifest
 
+
+
+
+
 def prep_bitrates(available_rates, chunk):
     rates = dict(map(lambda x, y: (x, y), available_rates, chunk))
     return rates
+# 假设 available_rates = [500000, 1000000, 5000000]，chunk = [126029, 244250, 1259637]，那么返回的 rates 字典将如下：
+
+# python
+# {
+#     500000: 126029,
+#     1000000: 244250,
+#     5000000: 1259637
+# }
+
+
+
+
 
 def prep_chunk(chunks_rem, manifest, chunk_num):
     params = {  "left" : chunks_remaining,
@@ -65,7 +162,7 @@ if __name__ == "__main__":
 
     #Load in network trace from input file
 
-    trace = loadtrace(sys.argv[1])
+    trace = loadtrace(sys.argv[1]) #所以第二个参数是一个tracefile，第一个参数一般是这个本身py文件的名字，也就是simulator
 
     #read video manifest
 
