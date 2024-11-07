@@ -16,9 +16,9 @@ class Scorecard:
 
 
     def log_bitrate_choice(self, time, chunknum, chunk):
-        self.chunk_info.append({"number" : chunknum,
-                                     "time" : time,
-                                     "chunk" : chunk})
+        self.chunk_info.append({"number" : chunknum, #chunk序号
+                                     "time" : time, #这个chunk对应的时间
+                                     "chunk" : chunk}) #是个list，第一个元素是这个chunk的bitrate，第二个是这个chunk的size
 
         self.switching_check()
 

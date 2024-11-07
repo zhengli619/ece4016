@@ -29,12 +29,12 @@ class SimBuffer:
             print("Error: Chunk being added is too large to fit into buffer")
             return False
 
-        buffer_time = self.sim_playback(playback_time)#播放playback_time时长，耗chunks，看还剩多久没放
+        buffer_time = self.sim_playback(playback_time)#播放playback_time时长，耗chunks，看耗完之后整个buffer会处于没有任何缓冲块状态多少秒
 
         self.chunks.append((chunk_size,chunk_time)) #把当前的chunk加进chunks队尾
         self.calculate_occupancy() #刷新块总大小
         self.calculate_time() #刷新块总时长
-        return buffer_time #返回还剩多久没放
+        return buffer_time #返回耗完buffer之后整个buffer会处于没有任何缓冲块状态多少秒
     
 
 
@@ -45,18 +45,18 @@ class SimBuffer:
 
 
     def burn_time(self, time):
-        buffer_time = self.sim_playback(time) #播放time这么长时间，耗掉一部分chunks，返回当前所有chunks还没耗掉的部分
+        buffer_time = self.sim_playback(time) #播放time这么长时间，耗掉一部分chunks，返回耗完之后整个buffer会处于没有任何缓冲块状态多少秒
         self.calculate_occupancy()# 刷新所有块的总大小
         self.calculate_time()#刷新所有块的总时长
-        return buffer_time#返回还没耗掉的部分
+        return buffer_time#返回耗完之后整个buffer会处于没有任何缓冲块状态多少秒
     
 
 
 
     def sim_playback(self, playback_time): #输入一个playback_time，他会耗掉一部分buffer中的chunk，
-                                            #输出的是当前所有buffer没耗掉的部分，
+                                            #输出的是耗完之后整个buffer会处于没有任何缓冲块状态多少秒
                                             #比如说buffer耗完了，还剩一段时间。 
-                                            #0就代表了现存buffer中的chunks足够耗掉所有的playback_time
+                                            #0就代表了现存buffer中的chunks足够耗掉所有的playback_time，也就是不存在缓冲区是空的的状态
                                             
         while playback_time > 0:
 
