@@ -24,35 +24,29 @@ def send_req_json(m_band, prev_throughput, buf_occ, av_bitrates, current_time, c
 #JSON（JavaScript Object Notation）是一种轻量级的数据交换格式，常用于在网络上进行数据传输。JSON 格式具有可读性好、兼容性强等优点，因此广泛用于服务器和客户端之间的数据传递。
 # json.dumps() 是将 Python 数据结构（如字典、列表等）转换为 JSON 格式字符串的函数。在代码中：
 #将包含多个键值对的 Python 字典转换成 JSON 格式字符串，并将其存储在 req 变量中。例如，假设传入的值如下：
-# m_band = 5000
-# prev_throughput = 4500
-# buf_occ = 2000
-# av_bitrates = [1000, 2000, 3000]
-# current_time = 120
-# chunk_arg = 5
-# rebuff_time = 0
-# pref_bitrate = 2000
+# m_band = ... (I AM TOO LAZY TO SHOW THIS, SO I JUST USE...)
+# prev_throughput = ...
+# buf_occ = ...
+# av_bitrates = ...
+# current_time = ...
+# chunk_arg = ...
+# rebuff_time = ...
+# pref_bitrate = ...
 # 调用 json.dumps 后，req 的内容将是这样的 JSON 字符串：
 # {
 #   "Measured Bandwidth": 5000,
 #   "Previous Throughput": 4500,
-#   "Buffer Occupancy": 2000,
-#   "Available Bitrates": [1000, 2000, 3000],
-#   "Video Time": 120,
-#   "Chunk": 5,
-#   "Rebuffering Time": 0,
-#   "Preferred Bitrate": 2000,
-#   "exit": 0
+#   "Buffer Occupancy": ..........(other things are similar, anyway, just notice its form is dictionary)
 # }
-    req = json.dumps({"Measured Bandwidth" : m_band, #用户当前时间戳中的带宽信息
-                     "Previous Throughput" : prev_throughput,#之前的吞吐量，在simulator.py中一开始被初始化为0
-                     "Buffer Occupancy" : buf_occ, #用户当前缓存是什么样的
+    req = json.dumps({"Measured Bandwidth" : m_band,#得到网络文件中当前时间最近的时间戳中的带宽信息，是一个数字，比如500000.0
+                     "Previous Throughput" : prev_throughput,#上一个chunk时的带宽，在simulator.py中一开始被初始化为0
+                     "Buffer Occupancy" : buf_occ, #用户当前缓存是什么样的，如：
                                                     # {
                                                     #   "size":总的buffersize,
                                                     #   "current":当前buffer中所有块的总size,
                                                     #   "time":当前buffer中所有块的总time，
                                                     # }
-                     "Available Bitrates" : av_bitrates, #当前chunk的一些信息，是如下字典：
+                     "Available Bitrates" : av_bitrates, #当前chunk的一些信息，如：
                                                         #（bitrate：size）
                                                         # {
                                                         #     500000: 126029, 
@@ -60,7 +54,7 @@ def send_req_json(m_band, prev_throughput, buf_occ, av_bitrates, current_time, c
                                                         #     5000000: 1259637
                                                         # }
                      "Video Time" : current_time,#当前时间戳
-                     "Chunk" : chunk_arg,#当前chunk的一些信息 # params = {  "left" : 30,
+                     "Chunk" : chunk_arg,#当前chunk的一些信息如： # params = {  "left" : 30,
                                                             #             "time" :2,
                                                             #             "current" : 0
                                                             #          }

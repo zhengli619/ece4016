@@ -291,7 +291,7 @@ if __name__ == "__main__":
         #下载时间是time_elapsed,这个过程中缓冲区可能空了，导致这一段时间播放器什么都放不出来，这里返回播放器空的时间
         
         #update state variables
-        prev_throughput = (stu_chunk_size * 8) / time_elapsed
+        prev_throughput = (stu_chunk_size * 8) / time_elapsed #chunk的单位是byte
         current_time += time_elapsed
         chunks_remaining -= 1
 
