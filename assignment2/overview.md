@@ -4,16 +4,36 @@
 
 本项目旨在实现并测试自适应比特率（ABR）算法，模拟视频流媒体播放过程中在不同网络条件下的适应性。以下是项目各文件夹和文件的作用说明，以及它们在项目中的相互关系。
 
+### 文件树
+
+Files Specification
+Below is the file tree of the given environment zip file of this homework:
+├───Classes //python classes used in the simulator and grader
+├───inputs //inputs files used for single use testing
+├───papers //some paper references used for the ABR algorithms
+├───tests //tests that grader will run
+│ ├───testALThard //test that have a unstable bandwidth that confuses ABR algos
+│ ├───testALTsoft //test that have a lot of alternating bandwidth
+│ ├───testHD //test that have high quality bandwidth and other params
+│ ├───testHDmanPQtrace //test that have high quality bandwidth but low params
+│ ├───testPQ //test that have low quality bandwidth and param, will rebuffer.
+│ └───...
+├───grader.py //python file that graded the ABR algorithm via QOE
+├───rand_sizes.py //python helper file use to generate chunk sizes
+├───simulator.py //the simulator that generate parameters from text and json files
+├───studentcodeExample.py //the file where that contains the student entrypoint
+└───studentComm.py //the program the student will call to invoke their ABR algorithm 。
+
 ### 文件夹说明
 
 1. **`Classes` 文件夹**：
-   - 该文件夹包含用于支持 `simulator.py` 的核心模块，提供了底层功能，如网络追踪处理、缓冲区模拟、评分计算等。可以认为这些文件相当于 `simulator.py` 的支持模块或“头文件”。
+   - 该文件夹包含用于支持 `simulator.py` 的核心模块，提供了底层功能，如网络追踪处理、缓冲区模拟、评分计算等。可以认为这些文件相当于 `simulator.py` 的支持模块或“头文件”,会在simulator.py中被调用。
    - **主要文件**：
      - `NetworkTrace.py`：处理和解析网络追踪文件的数据，提供网络带宽的模拟。输入为： time 是开始下载的时间，size 是下载的数据大小（单位为字节），输出为是完成下载所需的总时间。
-     - `SimBuffer.py`：模拟播放器缓冲区的行为，包括缓冲区填充、消耗和重新缓冲等。输入为：总的buffer size。 sim_chunk_download的输出为：播放时长为playback_time的视频，还剩多久没放完。
-     - `Scorecard.py`：用于计算 QoE（用户体验质量）评分，帮助评估算法的表现。输入：似乎什么都不要？不确定
+     - `SimBuffer.py`：模拟播放器缓冲区的行为，包括缓冲区填充、消耗和重新缓冲等。输入为：总的buffer size。 sim_chunk_download的输出为：播放时长为playback_time的视频，耗chunks，看耗完之后整个buffer会处于没有任何缓冲块状态多少秒
+     - `Scorecard.py`：用于计算 QoE（用户体验质量）评分，帮助评估算法的表现。
      - `simulator_comm.py`：simulator_comm.py 作为 客户端，主动连接 localhost:6000 端口，将模拟状态信（带宽、缓冲状态等）发送到 6000 端口监听的服务器。
-     在这个结构中，simulator.py 很可能充当服务器角色，监听 6000 端口，接收 simulator_comm.py 发来的请求数据。simulator.py 在接收到状态信息后，会调用学生的比特率算法文件（如 studentcodeExample.py），并基于这些信息做出比特率决策。之后，simulator.py 会将比特率决策通过套接字返回给 simulator_comm.py。
+     在这个结构中，studentComm.py 充当服务器角色，监听 6000 端口，接收 simulator_comm.py 发来的请求数据。studentComm.py 在接收到状态信息后，会调用学生的比特率算法文件（如 studentcodeExample.py），并基于这些信息做出比特率决策。之后，studentComm.py 会将比特率决策通过套接字返回给 simulator_comm.py。
 
 2. **`inputs` 文件夹**：
    - 该文件夹包含一些单独测试所需的输入文件，可以在开发和调试阶段使用，但在批量评分的流程中可以忽略。
@@ -54,11 +74,9 @@
 
 2. **单独测试**：
    - 您可以使用 `inputs` 文件夹中的单独测试文件，在开发和调试过程中手动运行以下命令进行测试：
-     ```bash
      python studentComm.py
      python simulator.py inputs/traceHD.txt inputs/manifestHD.json
-     ```
-
+     
 3. **批量评分**：
    - 在完成算法实现后，运行 `python grader.py` 批量测试 `tests` 文件夹中的所有测试用例，并生成 `grader.txt` 文件记录算法表现。
 
